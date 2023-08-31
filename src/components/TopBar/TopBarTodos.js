@@ -4,6 +4,7 @@ import React, {useState, useCallback} from 'react';
 import ResourceItemTodos from "../ResourceItem/ResourceItemTodos";
 
 function TopBarTodos() {
+
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
     const toggleIsUserMenuOpen = useCallback(
