@@ -1,48 +1,51 @@
-import {Card, ResourceList, ResourceItem, Stack, Button, Badge} from '@shopify/polaris';
-import {useState} from 'react';
+import React, { useState } from 'react';
+import { Card, ResourceList, ResourceItem, Stack, Button, Badge } from '@shopify/polaris';
 
-const items = [
+const initialTodos = [
     {
-        id: '6',
-        url: 'posts/6',
+        id: '1',
         title: 'How To Get Value From Wireframes',
-        author: 'Jonathan Mangrove',
+        status: 'Done',
     },{
-        id: '6',
-        url: 'posts/6',
+        id: '2',
         title: 'How To Get Value From Wireframes',
-        author: 'Jonathan Mangrove',
-    },{
-        id: '6',
-        url: 'posts/6',
-        title: 'How To Get Value From Wireframes',
-        author: 'Jonathan Mangrove',
-    },{
-        id: '6',
-        url: 'posts/6',
-        title: 'How To Get Value From Wireframes',
-        author: 'Jonathan Mangrove',
+        status: 'Pending',
     },
 ];
 
 function ResourceItemTodos() {
     const [selectedItems, setSelectedItems] = useState([]);
+    const [todos, setTodos] = useState(initialTodos);
+
+    const handleDeleteItem = (itemId) => {
+        const updatedTodos = todos.filter(todo => todo.id !== itemId);
+        setTodos(updatedTodos);
+        setSelectedItems(selectedItems.filter(selectedItem => selectedItem !== itemId));
+    };
+
+    const handleCompleteItem = (itemId) => {
+        const updatedTodos = todos.map(todo => {
+            if (todo.id === itemId && todo.status === "Pending") {
+                return { ...todo, status: "Done" };
+            }
+            return todo;
+        });
+        setTodos(updatedTodos);
+    };
 
     return (
         <Card>
             <ResourceList
-                resourceName={{singular: 'blog post', plural: 'blog posts'}}
-                items={items}
+                resourceName={{singular: 'todo', plural: 'todos'}}
+                items={todos}
                 selectedItems={selectedItems}
                 onSelectionChange={setSelectedItems}
                 selectable
                 renderItem={(item) => {
-                    const {id, url, title, author} = item;
-                    const authorMarkup = author ? <div>by {author}</div> : null;
+                    const {id, title, status} = item;
                     return (
                         <ResourceItem
                             id={id}
-                            url={url}
                             accessibilityLabel={`View details for ${title}`}
                             name={title}
                             verticalAlignment="center"
@@ -50,16 +53,15 @@ function ResourceItemTodos() {
                             <Stack alignment="center">
                                 <Stack.Item fill>
                                     <h3>{title}</h3>
-                                    {authorMarkup}
                                 </Stack.Item>
                                 <Stack.Item>
-                                    <Badge status="info">Status</Badge>
+                                    <Badge status={status === "Done" ? "Success" : null}>{status}</Badge>
                                 </Stack.Item>
                                 <Stack.Item>
-                                    <Button>Complete</Button>
+                                    <Button onClick={() => handleCompleteItem(id)}>Complete</Button>
                                 </Stack.Item>
                                 <Stack.Item>
-                                    <Button destructive >
+                                    <Button destructive onClick={() => handleDeleteItem(id)}>
                                         Delete
                                     </Button>
                                 </Stack.Item>
@@ -71,4 +73,5 @@ function ResourceItemTodos() {
         </Card>
     );
 }
+
 export default ResourceItemTodos;
