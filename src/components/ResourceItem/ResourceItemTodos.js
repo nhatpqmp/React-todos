@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, ResourceList, ResourceItem, Stack, Button, Badge } from '@shopify/polaris';
+import {Card, ResourceList, ResourceItem, Stack, Button, Badge, Modal, TextField, DisplayText} from '@shopify/polaris';
 
 const initialTodos = [
     {
@@ -16,6 +16,8 @@ const initialTodos = [
 function ResourceItemTodos() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [todos, setTodos] = useState(initialTodos);
+    const [newTodo, setNewTodo] = useState({ id: '', title: '', status: 'Pending' });
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const handleDeleteItem = (itemId) => {
         const updatedTodos = todos.filter(todo => todo.id !== itemId);
@@ -33,7 +35,50 @@ function ResourceItemTodos() {
         setTodos(updatedTodos);
     };
 
+    const handleCreateTodo = () => {
+        if (newTodo.title) {
+            setTodos([...todos, newTodo]);
+            setNewTodo({ id: '', title: '', status: 'Pending' });
+            setIsCreateModalOpen(false);
+        }
+    };
+
+    const handleCloseCreateModal = () => {
+        setIsCreateModalOpen(false);
+    };
+
     return (
+        <>
+            <DisplayText>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 10px 0' }}>
+                    <h2>Todos</h2>
+                    <Button primary onClick={() => setIsCreateModalOpen(true)}>Create Todo</Button>
+                </div>
+                <Modal
+                    open={isCreateModalOpen}
+                    onClose={handleCloseCreateModal}
+                    title="Create Todo"
+                    primaryAction={{
+                        content: 'Create',
+                        onAction: handleCreateTodo,
+                    }}
+                    secondaryActions={[
+                        {
+                            content: 'Cancel',
+                            onAction: handleCloseCreateModal,
+                        },
+                    ]}
+                >
+                    <Modal.Section>
+                        <TextField
+                            label=""
+                            placeholder="Todo name"
+                            value={newTodo.title}
+                            onChange={(value) => setNewTodo({ ...newTodo, title: value })}
+                        />
+                    </Modal.Section>
+                </Modal>
+            </DisplayText>
         <Card>
             <ResourceList
                 resourceName={{singular: 'todo', plural: 'todos'}}
@@ -71,6 +116,7 @@ function ResourceItemTodos() {
                 }}
             />
         </Card>
+        </>
     );
 }
 
