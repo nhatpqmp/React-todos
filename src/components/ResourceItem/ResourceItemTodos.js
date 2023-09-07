@@ -19,25 +19,21 @@ function ResourceItemTodos() {
     const [newTodo, setNewTodo] = useState({ id: '', title: '', status: 'Pending' });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectAllChecked, setSelectAllChecked] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setSelectAllChecked(selectedItems.length === todos.length);
     }, [selectedItems, todos]);
 
     const handleDeleteItem = (itemId) => {
-        const updatedTodos = todos.filter(todo => todo.id !== itemId);
-        setTodos(updatedTodos);
+        setTodos(prev => prev.filter(item => item.id !== itemId))
         setSelectedItems(selectedItems.filter(selectedItem => selectedItem !== itemId));
     };
 
     const handleCompleteItem = (itemId) => {
-        const updatedTodos = todos.map(todo => {
-            if (todo.id === itemId && todo.status === "Pending") {
-                return { ...todo, status: "Done" };
-            }
-            return todo;
-        });
-        setTodos(updatedTodos);
+        setTodos(prev => prev?.map(item => {
+            return item.id === itemId && item.status === "Pending" ? {...item, status: "Done"} : item;
+        }))
     };
 
     const handleCreateTodo = () => {
@@ -53,12 +49,13 @@ function ResourceItemTodos() {
     };
 
     const handleCompleteAll = () => {
-        const updatedTodos = todos.map(todo => {
+        const updatedTodos = todos.map((todo) => {
             if (selectedItems.includes(todo.id) && todo.status === "Pending") {
                 return { ...todo, status: "Done" };
             }
             return todo;
         });
+
         setTodos(updatedTodos);
     };
 
@@ -81,7 +78,7 @@ function ResourceItemTodos() {
                     title="Create Todo"
                     primaryAction={{
                         content: 'Create',
-                        onAction: handleCreateTodo,
+                        onAction: handleCreateTodo
                     }}
                     secondaryActions={[
                         {
@@ -102,6 +99,7 @@ function ResourceItemTodos() {
             </DisplayText>
             <Card>
                 <ResourceList
+                    loading={loading}
                     resourceName={{ singular: 'todo', plural: 'todos' }}
                     items={todos}
                     selectedItems={selectedItems}
@@ -135,10 +133,10 @@ function ResourceItemTodos() {
                             </ResourceItem>
                         );
                     }}
-                    bulkActions={[
+                    promotedBulkActions={[
                         {
                             content: 'Complete',
-                            onAction: handleCompleteAll,
+                            onAction: handleCompleteAll
                         },
                         {
                             content: 'Delete',
