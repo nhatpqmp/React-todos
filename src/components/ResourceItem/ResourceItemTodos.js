@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import {Card, ResourceList, ResourceItem, Stack, Button, Badge, Modal, TextField, DisplayText} from '@shopify/polaris';
+import React, { useState, useEffect } from 'react';
+import { Card, ResourceList, ResourceItem, Stack, Button, Badge, Modal, TextField, DisplayText } from '@shopify/polaris';
 
 const initialTodos = [
     {
         id: '1',
         title: 'How To Get Value From Wireframes',
         status: 'Done',
-    },{
+    }, {
         id: '2',
         title: 'How To Get Value From Wireframes',
         status: 'Pending',
@@ -18,6 +18,11 @@ function ResourceItemTodos() {
     const [todos, setTodos] = useState(initialTodos);
     const [newTodo, setNewTodo] = useState({ id: '', title: '', status: 'Pending' });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [selectAllChecked, setSelectAllChecked] = useState(false);
+
+    useEffect(() => {
+        setSelectAllChecked(selectedItems.length === todos.length);
+    }, [selectedItems, todos]);
 
     const handleDeleteItem = (itemId) => {
         const updatedTodos = todos.filter(todo => todo.id !== itemId);
@@ -45,6 +50,22 @@ function ResourceItemTodos() {
 
     const handleCloseCreateModal = () => {
         setIsCreateModalOpen(false);
+    };
+
+    const handleCompleteAll = () => {
+        const updatedTodos = todos.map(todo => {
+            if (selectedItems.includes(todo.id) && todo.status === "Pending") {
+                return { ...todo, status: "Done" };
+            }
+            return todo;
+        });
+        setTodos(updatedTodos);
+    };
+
+    const handleDeleteAll = () => {
+        const updatedTodos = todos.filter(todo => !selectedItems.includes(todo.id));
+        setTodos(updatedTodos);
+        setSelectedItems([]);
     };
 
     return (
@@ -79,43 +100,53 @@ function ResourceItemTodos() {
                     </Modal.Section>
                 </Modal>
             </DisplayText>
-        <Card>
-            <ResourceList
-                resourceName={{singular: 'todo', plural: 'todos'}}
-                items={todos}
-                selectedItems={selectedItems}
-                onSelectionChange={setSelectedItems}
-                selectable
-                renderItem={(item) => {
-                    const {id, title, status} = item;
-                    return (
-                        <ResourceItem
-                            id={id}
-                            accessibilityLabel={`View details for ${title}`}
-                            name={title}
-                            verticalAlignment="center"
-                        >
-                            <Stack alignment="center">
-                                <Stack.Item fill>
-                                    <h3>{title}</h3>
-                                </Stack.Item>
-                                <Stack.Item>
-                                    <Badge status={status === "Done" ? "Success" : null}>{status}</Badge>
-                                </Stack.Item>
-                                <Stack.Item>
-                                    <Button onClick={() => handleCompleteItem(id)}>Complete</Button>
-                                </Stack.Item>
-                                <Stack.Item>
-                                    <Button destructive onClick={() => handleDeleteItem(id)}>
-                                        Delete
-                                    </Button>
-                                </Stack.Item>
-                            </Stack>
-                        </ResourceItem>
-                    );
-                }}
-            />
-        </Card>
+            <Card>
+                <ResourceList
+                    resourceName={{ singular: 'todo', plural: 'todos' }}
+                    items={todos}
+                    selectedItems={selectedItems}
+                    onSelectionChange={setSelectedItems}
+                    selectable
+                    renderItem={(item) => {
+                        const { id, title, status } = item;
+                        return (
+                            <ResourceItem
+                                id={id}
+                                accessibilityLabel={`View details for ${title}`}
+                                name={title}
+                                verticalAlignment="center"
+                            >
+                                <Stack alignment="center">
+                                    <Stack.Item fill>
+                                        <h3>{title}</h3>
+                                    </Stack.Item>
+                                    <Stack.Item>
+                                        <Badge status={status === "Done" ? "Success" : null}>{status}</Badge>
+                                    </Stack.Item>
+                                    <Stack.Item>
+                                        <Button onClick={() => handleCompleteItem(id)}>Complete</Button>
+                                    </Stack.Item>
+                                    <Stack.Item>
+                                        <Button destructive onClick={() => handleDeleteItem(id)}>
+                                            Delete
+                                        </Button>
+                                    </Stack.Item>
+                                </Stack>
+                            </ResourceItem>
+                        );
+                    }}
+                    bulkActions={[
+                        {
+                            content: 'Complete',
+                            onAction: handleCompleteAll,
+                        },
+                        {
+                            content: 'Delete',
+                            onAction: handleDeleteAll,
+                        },
+                    ]}
+                />
+            </Card>
         </>
     );
 }
